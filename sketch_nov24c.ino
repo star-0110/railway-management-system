@@ -74,7 +74,7 @@ void loop() {
     myservo.write(180);
     delay(100);
 	  
-    lcd.setCursor(6,0);
+    lcd.setCursor(3,0);
     lcd.print("byeeeeee...!");
 	  
     digitalWrite(ledG,HIGH);

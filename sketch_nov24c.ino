@@ -2,85 +2,93 @@
 #include <ESP32Servo.h>
 #include <Wire.h>
 
-LiquidCrystal_I2C lcd(0x27,16,2);
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 Servo myservo;
 int servo1 = 12;
 
 int IR1 = 4;
 int IR2 = 23;
-int ir1,ir2;
+int ir1, ir2;
 int buz = 33;
 int ledR = 32 , ledG = 14;
 int trig = 5 , echo = 18;
 
 int dis;
 long dur;
+int c;
 
 void setup() {
-  	ESP32PWM::allocateTimer(0);
-	ESP32PWM::allocateTimer(1);
-	ESP32PWM::allocateTimer(2);
-	ESP32PWM::allocateTimer(3);
-	
-	myservo.setPeriodHertz(50);           
-	myservo.attach(servo1, 1000, 2000);
+  ESP32PWM::allocateTimer(0);
+  ESP32PWM::allocateTimer(1);
+  ESP32PWM::allocateTimer(2);
+  ESP32PWM::allocateTimer(3);
 
-  	pinMode(IR1,INPUT);
-  	pinMode(IR2,INPUT);
+  myservo.setPeriodHertz(50);
+  myservo.attach(servo1, 1000, 2000);
 
-  	pinMode(trig,OUTPUT);
-  	pinMode(echo,INPUT);
+  pinMode(IR1, INPUT);
+  pinMode(IR2, INPUT);
 
-  	pinMode(buz,OUTPUT);
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
 
-  	pinMode(ledR,OUTPUT);
-  	pinMode(ledG,OUTPUT);
+  pinMode(buz, OUTPUT);
 
-	lcd.init();
-  	lcd.backlight();
-  	Serial.begin(9600);
+  pinMode(ledR, OUTPUT);
+  pinMode(ledG, OUTPUT);
+
+  lcd.init();
+  lcd.backlight();
+  Serial.begin(9600);
 }
 
 void loop() {
   ir1 = digitalRead(IR1);
   ir2 = digitalRead(IR2);
-	
-  digitalWrite(trig,LOW);
+  Serial.print("IR1= ");
+  Serial.print(ir1);
+  Serial.print("  IR2= ");
+  Serial.print(ir2);
+  digitalWrite(trig, LOW);
   delayMicroseconds(2);
-  digitalWrite(trig,HIGH);
+  digitalWrite(trig, HIGH);
   delayMicroseconds(10);
-  digitalWrite(trig,LOW);
-  dur = pulseIn(echo,HIGH);
+  digitalWrite(trig, LOW);
+  dur = pulseIn(echo, HIGH);
   dis = dur * 0.034 / 2;
-	
-  if (ir1 == 0 && ir2 == 1) {
+  
+  if (ir1 == 0 && ir2 == 1 && c == 0 ) {
     myservo.write(0);
-    delay(100);
-	  
-    lcd.setCursor(3,0);
+    delay(50);
+
+    lcd.setCursor(1, 0);
     lcd.print("Train arrived");
-	  
-    digitalWrite(ledR,HIGH);
-    digitalWrite(ledG,LOW);
-	  
-    digitalWrite(buz,HIGH);
+
+    digitalWrite(ledR, HIGH);
+    digitalWrite(ledG, LOW);
+
+    digitalWrite(buz, HIGH);
     delay(100);
-    digitalWrite(buz,LOW);
+    digitalWrite(buz, LOW);
     delay(100);
+    c = 1;
+
   }
-	
-  if (ir1 == 1 &&ir2 == 0){
+
+  else if (ir1 == 1 && ir2 == 0 && c == 1 ) {
     myservo.write(180);
     delay(100);
-	  
-    lcd.setCursor(3,0);
+
+    lcd.setCursor(3, 0);
     lcd.print("byeeeeee...!");
-	  
-    digitalWrite(ledG,HIGH);
-    digitalWrite(ledR,LOW);
-	  
-    digitalWrite(buz,LOW);
-    delay(100);
+
+    digitalWrite(ledG, HIGH);
+    digitalWrite(ledR, LOW);
+
+    digitalWrite(buz, LOW);
+    c = 0;
+
   }
+  lcd.clear();
 }
